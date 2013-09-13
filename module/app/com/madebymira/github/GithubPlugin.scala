@@ -16,7 +16,7 @@ class GithubPlugin(application: Application) extends Plugin {
     val GITHUB_CALLBACK_URL: String = "github.callbackURL"
 
     lazy val id: String = application.configuration.getString(GITHUB_ID).getOrElse(null);
-    lazy val secret: String = application.configuration.getString(GITHUB_ID).getOrElse(null);
+    lazy val secret: String = application.configuration.getString(GITHUB_SECRET).getOrElse(null);
     lazy val callbackURL: String = application.configuration.getString(GITHUB_CALLBACK_URL).getOrElse(null);
 
     /* (non-Javadoc)
