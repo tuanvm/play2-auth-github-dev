@@ -14,10 +14,12 @@ class GithubPlugin(application: Application) extends Plugin {
     val GITHUB_ID: String = "github.id";
     val GITHUB_SECRET: String = "github.secret";
     val GITHUB_CALLBACK_URL: String = "github.callbackURL"
+    val GITHUB_SCOPE: String = "github.scope"
 
     lazy val id: String = application.configuration.getString(GITHUB_ID).getOrElse(null);
     lazy val secret: String = application.configuration.getString(GITHUB_SECRET).getOrElse(null);
     lazy val callbackURL: String = application.configuration.getString(GITHUB_CALLBACK_URL).getOrElse(null);
+    lazy val scope: String = application.configuration.getString(GITHUB_SCOPE).getOrElse(null);
 
     /* (non-Javadoc)
      * @see play.api.Plugin#onStart()
@@ -35,13 +37,8 @@ class GithubPlugin(application: Application) extends Plugin {
      * @param scope the scope
      * @return the login url
      */
-    def getLoginUrl(scope: String): String = {
-        if ((scope != null) && (!scope.isEmpty())) {
-            return "https://github.com/login/oauth/authorize?scope=" + scope + "&client_id=" + id + "&redirect_uri=" + callbackURL
-        } else {
-            val defaulScope = "user"
-            return "https://github.com/login/oauth/authorize?scope=" + defaulScope + "&client_id=" + id + "&redirect_uri=" + callbackURL
-        }
+    def getLoginUrl: String = {
+        return "https://github.com/login/oauth/authorize?scope=" + scope + "&client_id=" + id + "&redirect_uri=" + callbackURL
     }
 
     /**
@@ -51,14 +48,11 @@ class GithubPlugin(application: Application) extends Plugin {
      * @return the access token
      */
     def getAccessToken(code: String): String = {
-        Logger.info("GOT CODE:" + code)
-
         val duration = Duration(10, SECONDS)
         val future: Future[play.api.libs.ws.Response] = WS.url("https://github.com/login/oauth/access_token").withHeaders("Accept" -> "application/json").post(Map("client_id" -> Seq(id), "client_secret" -> Seq(secret), "code" -> Seq(code)))
         val response = Await.result(future, duration)
-        
+
         val accessJson = response.json
-        Logger.info("GOT access token:" + accessJson)
         val accessToken = (accessJson \ "access_token").toString.filter(char => char != '\"')
         return accessToken
     }
