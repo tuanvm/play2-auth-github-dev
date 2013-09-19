@@ -10,10 +10,21 @@ import play.api.libs.json.JsValue
 trait GithubConnect {
     self: GithubConfig =>
 
+    /**
+     * Gets the github authorize url.
+     *
+     * @return the github authorize url
+     */
     def getGithubAuthorizeUrl: String = {
         return "https://github.com/login/oauth/authorize?scope=" + ghScope + "&client_id=" + ghId + "&redirect_uri=" + ghCallbackURL
     }
 
+    /**
+     * Gets the github access token.
+     *
+     * @param code the code
+     * @return the github access token
+     */
     def getGithubAccessToken(code: String): String = {
         val duration = Duration(10, SECONDS)
         val future: Future[play.api.libs.ws.Response] = WS.url("https://github.com/login/oauth/access_token").withHeaders("Accept" -> "application/json").post(Map("client_id" -> Seq(ghId), "client_secret" -> Seq(ghSecret), "code" -> Seq(code)))
